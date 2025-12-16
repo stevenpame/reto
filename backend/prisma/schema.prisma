@@ -4,11 +4,50 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+
+
+// Define el proveedor de tu base de datos (ej. postgresql, mysql, sqlite)
+datasource db {
+  provider = "mysql" 
+  url  = env("DATABASE_URL")
 }
 
-datasource db {
-  provider = "postgresql"
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. Modelo Usuarios (para autenticación)
+model Usuario {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String    // Almacena el hash seguro de la contraseña
+  nombre          String?
+  fechaRegistro   DateTime  @default(now())
+  reservas        Reserva[]
+}
+
+// 2. Modelo Equipos (el catálogo de lo que se puede reservar)
+model Equipo {
+  id              String    @id @default(uuid())
+  nombreEquipo    String
+  numInventario   String    @unique
+  especificaciones String?
+  estado          String    @default("operativo")
+  reservas        Reserva[]
+}
+
+// 3. Modelo Reservas (la clave de la lógica de negocio)
+model Reserva {
+  id                  String    @id @default(uuid())
+  usuarioId           String
+  equipoId            String
+  fechaInicioReserva  DateTime  // Usamos DateTime para manejar fechas y horas
+  fechaFinReserva     DateTime
+  estadoReserva       String    @default("activa") // 'activa', 'cancelada', 'finalizada'
+
+  // Relaciones
+  usuario             Usuario   @relation(fields: [usuarioId], references: [id])
+  equipo              Equipo    @relation(fields: [equipoId], references: [id])
+
+
 }

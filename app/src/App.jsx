@@ -1,35 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import Auth from './componentes/Auth';
+import Disponibilidad from './componentes/Disponibilidad';
+import MisReservas from './componentes/Reservas';
 
 function App() {
-  const [count, setCount] = useState(0)
+  // Manejo del estado de autenticación
+  const [authToken, setAuthToken] = useState(localStorage.getItem('token') || null);
+  const [userId, setUserId] = useState(localStorage.getItem('userId') || null);
+
+  // Función para manejar el éxito del login
+  const loginSuccess = (token, id) => {
+    // Persistir el token y el ID en el almacenamiento local y en el estado
+    localStorage.setItem('token', token);
+    localStorage.setItem('userId', id);
+    setAuthToken(token);
+    setUserId(id);
+  };
+
+  // Función para manejar el cierre de sesión
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    setAuthToken(null);
+    setUserId(null);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="App">
+      <header className="App-header">
+        <h1>Sistema de Reserva de Equipos</h1>
+        {authToken ? (
+          <div>
+            <span className="user-info">Usuario ID: {userId}</span>
+            <button onClick={logout}>Cerrar Sesión</button>
+          </div>
+        ) : (
+          <Auth onLoginSuccess={loginSuccess} />
+        )}
+      </header>
+      
+      <main>
+        
+        <Disponibilidad authToken={authToken} />
+        
+        <hr />
+
+       
+        {authToken && <MisReservas authToken={authToken} />}
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;

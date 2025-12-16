@@ -1,6 +1,6 @@
 import  { useState, useEffect } from 'react';
 
-const API_BASE_URL = 'http://localhost:4000/api/reservas';
+const API_BASE_URL = 'http://localhost:3000/api/reservas';
 
 function MisReservas({ authToken }) {
   const [reservas, setReservas] = useState([]);// estado para almacenar las reservas del usuario
